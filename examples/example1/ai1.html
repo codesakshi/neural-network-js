@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<script src="neural-network.js"></script>
+<body>
+<canvas id="graphCanvas" width="600px" height="600px" style="width:100%;max-width:600px;border:1px solid black"></canvas>
+<div id="error"></div>
+<script>
+
+
+	// XYPlotter Class
+	function XYPlotter(id) {
+
+		// Setup
+		this.canvas = document.getElementById(id);
+		this.ctx = this.canvas.getContext("2d");
+		this.xMin = 0;
+		this.yMin = 0;
+		this.xMax = this.canvas.width;
+		this.yMax = this.canvas.height;
+
+		this.xF = 1;
+		this.yF = 1;
+
+		this.ctx.font = "16px Verdana";
+
+		// Make x axis at bottom and y axis go up
+		this.ctx.transform(1, 0, 0, -1, 0, this.canvas.height);
+
+		// Scle X and Y
+		this.scleXY = function(x, y) {
+		  this.xF = this.xMax / x
+		  this.yF = this.yMax / y
+		}
+
+		// Plot One XY Point
+		this.plotPoint = function(x, y, color, radius = 3) {
+		  this.ctx.fillStyle = color;
+		  this.ctx.beginPath();
+		  this.ctx.ellipse(x*this.xF, y*this.yF, radius, radius, 0, 0, Math.PI * 2);
+		  this.ctx.fill();
+		}
+
+		// Plot Points Function
+		this.plotPoints = function(n, xArr, yArr, color, radius = 3) {
+		  for (let i = 0; i < n; i++) {
+			this.ctx.fillStyle = color;
+			this.ctx.beginPath();
+			this.ctx.ellipse(xArr[i]*this.xF, yArr[i]*this.yF, radius, radius, 0, 0, Math.PI * 2);
+			this.ctx.fill();
+		  }
+		}
+
+		// Plot Line Function
+		this.plotLine = function(x0, y0, x, y, color) {
+		  this.ctx.moveTo(x0*this.xF, y0*this.yF);
+		  this.ctx.lineTo(x*this.xF, y*this.yF);
+		  this.ctx.strokeStyle = color;
+		  this.ctx.stroke();
+		}
+
+		// Plot Rectangle Function
+		this.plotRectangle = function(x, y, w, h) {
+		  this.ctx.strokeRect(x*this.xF, y*this.yF, w, h);
+		}
+
+		// Plot Circle Function
+		this.plotCircle = function(x, y, r) {
+		  this.ctx.beginPath();
+		  this.ctx.arc(x*this.xF, y*this.yF, r, 0, 2 * Math.PI);
+		  this.ctx.stroke();
+		}
+
+		// Plot Text Function
+		this.plotText = function(x, y, text) {
+		  this.ctx.fillText(text, x*this.xF, y*this.yF);
+		}
+
+	} // End of Plotter Object
+
+	// Initiate Values
+	const numPoints = 500;
+	const learningRate = 0.01;
+
+	// Create a Plotter
+	const plotter = new XYPlotter("graphCanvas");
+
+	const xMax = plotter.xMax;
+	const yMax = plotter.yMax;
+	const xMin = plotter.xMin;
+	const yMin = plotter.yMin;
+
+	// Line Function
+	function f(x) {
+	  return x * 1.2 + 50;
+	}
+
+	//Plot the Line
+	plotter.plotLine(xMin, f(xMin), xMax, f(xMax), "black");
+
+	// Create Random XY Points
+	const xPoints = [];
+	const yPoints = [];
+	for (let i = 0; i < numPoints; i++) {
+	  xPoints[i] = Math.random() * xMax;
+	  yPoints[i] = Math.random() * yMax;
+	}
+
+	// condition for testing result
+	function testCondition( x,y ){
+		return y < f(x);
+	}
+	// Compute desired Answers
+	const actutal = [];
+	for (let i = 0; i < numPoints; i++) {
+	  actutal[i] = testCondition( xPoints[i], yPoints[i] ) ? 1 : 0;
+	}
+
+	// Create a Neural network with two inputs;
+
+	const nlp = new NeuralNetwork( 2, " Points right of line " )
+		.addLayer( 1, binaryStep )
+		.randomizeWeights();
+		
+	// Train the Perceptron
+	for (let j = 0; j <= 10000; j++) {
+	  for (let i = 0; i < numPoints; i++) {
+		nlp.train([xPoints[i], yPoints[i]], [actutal[i]]);
+	  }
+	}
+
+	let neuralJson = nlp.toJsonString();
+
+	console.log( neuralJson );
+
+	const nlpn =  networkFromJson( JSON.parse ( neuralJson ));
+
+	// Test Against Unknown Data
+	const counter = 500;
+	let errors = 0;
+	for (let i = 0; i < counter; i++) {
+	  let x = Math.random() * xMax;
+	  let y = Math.random() * yMax;
+	  
+	  // predict the value
+	  let guess = nlpn.predict([x, y]);
+	  
+	  let color = ((guess == 0) ? "blue" : "black");
+	  
+	  plotter.plotPoint(x, y, color);
+	  
+	  let actutal = testCondition( x, y ) ? 1 : 0;
+	  
+	  if( actutal != guess ) {errors++}
+	  
+	}
+	document.getElementById("error").innerHTML = errors + " Errors out of " + counter;
+</script>
+</body>
+</html>
