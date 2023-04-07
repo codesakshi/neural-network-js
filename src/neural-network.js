@@ -184,12 +184,12 @@ function NeuralNetwork( inputCount, name ){
 		
 		this.forward( inputs );
 		
-		this.backword( inputs, actuals );
+		this.backward( inputs, actuals );
 		
 		this.updateWeights( inputs, learningRate );
 	}
 		
-	this.backword= function ( inputs, actuals ){
+	this.backward= function ( inputs, actuals ){
 		
 		// iterate from end to start
 		for( let i = this.layers.length - 1; i >=0 ; i -- ){
