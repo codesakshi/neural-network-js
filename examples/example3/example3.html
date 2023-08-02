@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<script src="neural-network.js"></script>
+
+<script>
+
+	// Set up characters to recognize.
+
+	const a = character(
+		'.#####.' +
+		'#.....#' +
+		'#.....#' +
+		'#######' +
+		'#.....#' +
+		'#.....#' +
+		'#.....#'
+	  );
+	  
+	const b = character(
+		'######.' +
+		'#.....#' +
+		'#.....#' +
+		'######.' +
+		'#.....#' +
+		'#.....#' +
+		'######.'
+	);
+
+	const c = character(
+		'#######' +
+		'#......' +
+		'#......' +
+		'#......' +
+		'#......' +
+		'#......' +
+		'#######'
+	);
+
+	/**
+	 * Turn the # into 1s and . into 0s.
+	 */
+
+	function character(string) {
+	  return string
+		.trim()
+		.split('')
+		.map(integer)
+
+	  function integer(symbol) {
+		if ('#' === symbol) return 1
+		if ('.' === symbol) return 0
+	  }
+	}
+
+	function map(letter) {
+	  if (letter === 'a') return [ 0.1 ]
+	  if (letter === 'b') return [ 0.3 ]
+	  if (letter === 'c') return [ 0.5 ]
+	  return 0
+	}
+
+	// Create a Neural network with two inputs
+	const neuralnet = new NNS.NeuralNetwork( a.length, "Character recognization")
+		.addLayer( 3, NNS.leakyRelu )
+		.addLayer( 3, NNS.leakyRelu )
+		.addLayer( 1, NNS.sigmoid )
+		.randomizeWeights();
+
+
+	const train_data = [    // Set up train data.
+		{ input: a, output: map('a') },
+		{ input: b, output: map('b') },
+		{ input: c, output: map('c') },
+	]
+
+	// Train the Neuron
+	for (let k = 0; k <= 100000; k++) {
+		for (let j = 0; j < train_data.length; j++) {
+			neuralnet.train( train_data[j].input, [train_data[j].output]);
+		}
+	}
+
+	let neuralJson = neuralnet.toJsonString();
+	
+	console.log( neuralJson );
+	
+	// Create new network with the given json data
+	// Can use the existing one also.
+	// This operation is to demostrate, loading weights to a network from json
+	const nlpn = new NNS.NeuralNetwork();
+	nlpn.load( JSON.parse(neuralJson) );
+	
+	// Let the neural predict letter `C`. It is OK to predict it with a pixel off.
+	let result = nlpn.predict(character(
+	  '######.' +
+	  '#......' +
+	  '#......' +
+	  '#......' +
+	  '#......' +
+	  '##.....' +
+	  '#######'
+	))
+	
+	console.log( "Recognize C - expected - 0.5. result : " + result);
+	
+	result = nlpn.predict(character(
+	'.#####.' +
+	'##...##' +
+	'#.....#' +
+	'#######' +
+	'#.....#' +
+	'#.....#' +
+	'#.....#'
+	))
+	
+	console.log( "Recognize A - expected - 0.1. result : " + result);
+	
+	result = nlpn.predict(character(
+	  '######.' +
+	  '##....#' +
+	  '#.....#' +
+	  '.#####.' +
+	  '#.....#' +
+	  '#.....#' +
+	  '######.'
+	))
+	
+	console.log( "Recognize B - expected - 0.3. result : " + result);
+
+
+</script>
+<body>
+	<br><br><br><br><br>
+	 <h3>Character recognization - View Browser Console for results</h3>
+</body>
+</html>

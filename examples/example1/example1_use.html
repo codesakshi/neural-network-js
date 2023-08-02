@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <script src="neural-network.js"></script>
+<script src="sample1_config_data.js"></script>
 
 <body>
 <canvas id="graphCanvas" width="600px" height="600px" style="width:100%;max-width:600px	;border:1px solid black"></canvas>
@@ -73,43 +74,11 @@
 	//plot the lines
 	plotter.plotLine(xMin, f1(xMin), xMax, f1(xMax), "green");
 
-	// Create Random XY Points
-	const xPoints = [];
-	const yPoints = [];
-	for (let i = 0; i < numPoints; i++) {
-	  xPoints[i] = Math.random() * xMax;
-	  yPoints[i] = Math.random() * yMax;
-	}
-
-	
-	// Compute Desired Answers
-	const actuals = [];
-	for (let i = 0; i < numPoints; i++) {
-		actuals[i] = testCondition( xPoints[i], yPoints[i] ) ? 1 : 0;
-	}
-
-	// Create a Neural network with two inputs
-	const nlp = new NNS.NeuralNetwork(2, "Points Right of line")
-		.addLayer( 1, NNS.binaryStep )
-		.randomizeWeights();
-
-	// Train the Neuron
-	for (let i = 0; i <= 10000; i++) {
-	
-		for (let j = 0; j < numPoints; j++) {
-			nlp.train([ xPoints[j], yPoints[j]  ], [actuals[j]]);
-		}
-	}
-
-	let neuralJson = nlp.toJsonString();
-	
-	console.log( neuralJson );
-	
-	// Create new network with the given json data
-	// Can use the existing one also.
-	// This operation is to demostrate, loading weights to a network from json
+	// Create NeuralNetwork
 	const nlpn = new NNS.NeuralNetwork();
-	nlpn.load( JSON.parse(neuralJson) );
+	
+	// Load weights configuration data to NeuralNetwork
+	nlpn.load( nlpConfigData );
 	
 	// Test Against Unknown Data
 	const counter = 500;

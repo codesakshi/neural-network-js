@@ -1,0 +1,79 @@
+
+
+<!DOCTYPE html>
+<html>
+<script src="neural-network.js"></script>
+<script src="sample3_config_data.js"></script>
+
+<script>
+
+	function character(string) {
+	  return string
+		.trim()
+		.split('')
+		.map(integer)
+
+	  function integer(symbol) {
+		if ('#' === symbol) return 1
+		if ('.' === symbol) return 0
+	  }
+	}
+
+	function map(letter) {
+	  if (letter === 'a') return [ 0.1 ]
+	  if (letter === 'b') return [ 0.3 ]
+	  if (letter === 'c') return [ 0.5 ]
+	  return 0
+	}
+
+	// Create NeuralNetwork
+	const nlpn = new NNS.NeuralNetwork();
+	
+	// Load weights configuration data to NeuralNetwork
+	nlpn.load( nlpConfigData );
+	
+	// Let the neural predict letter `C`. It is OK to predict it with a pixel off.
+	let result = nlpn.predict(character(
+	  '######.' +
+	  '#......' +
+	  '#......' +
+	  '#......' +
+	  '#......' +
+	  '##.....' +
+	  '#######'
+	))
+	
+	console.log( "Recognize C - expected - 0.5. result : " + result);
+	
+	result = nlpn.predict(character(
+	'.#####.' +
+	'##...##' +
+	'#.....#' +
+	'#######' +
+	'#.....#' +
+	'#.....#' +
+	'#.....#'
+	))
+	
+	console.log( "Recognize A - expected - 0.1. result : " + result);
+	
+	result = nlpn.predict(character(
+	  '######.' +
+	  '##....#' +
+	  '#.....#' +
+	  '.#####.' +
+	  '#.....#' +
+	  '#.....#' +
+	  '######.'
+	))
+	
+	console.log( "Recognize B - expected - 0.3. result : " + result);
+
+
+</script>
+<body>
+	<br><br><br><br><br>
+	 <h3>Character recognization - View Browser Console for results</h3>
+</body>
+</html>
+

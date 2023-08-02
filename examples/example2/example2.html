@@ -60,18 +60,31 @@
 	const xMin = plotter.xMin;
 	const yMin = plotter.yMin;
 
-	// Line Function
+	// Line Functions
 	function f1(x) {
 	  return x * 1.2 + 50;
+	}
+	
+	function f2(x) {
+		return x * 0.4 + 100;
+	}
+
+	function f3(x) {
+		return x * -1.3 + 800;
 	}
 
 	// condition for testing result
 	function testCondition(x, y ){
-		return y < f1(x);
+	
+		return ( y < f1(x)
+			&& y > f2(x)
+			&& y < f3(x) );
 	}
 	
 	//plot the lines
 	plotter.plotLine(xMin, f1(xMin), xMax, f1(xMax), "green");
+	plotter.plotLine(xMin, f2(xMin), xMax, f2(xMax), "green");
+	plotter.plotLine(xMin, f3(xMin), xMax, f3(xMax), "green");
 
 	// Create Random XY Points
 	const xPoints = [];
@@ -89,7 +102,9 @@
 	}
 
 	// Create a Neural network with two inputs
-	const nlp = new NNS.NeuralNetwork(2, "Points Right of line")
+	const nlp = new NNS.NeuralNetwork(2, "Points inside region")
+		.addLayer( 4, NNS.leakyRelu )
+		.addLayer( 4, NNS.leakyRelu )
 		.addLayer( 1, NNS.binaryStep )
 		.randomizeWeights();
 
